@@ -30,11 +30,10 @@ namespace CRUDWinFormsMVP
 
             // "Host=localhost;Port=5432;Username=soporte;Password=soporte;Database=VeterinaryDb"
 
-            IPetView view = new PetView();
-            IPetRepository repository = new PetRepository(sqlConnectionString);
+            IMainView view = new MainView();
             
             // Instanciamos el presentador y le inyectamos los objetos vista y repositorio
-            new PetPresenter(view, repository);
+            new MainPresenter(view, sqlConnectionString);
        
             Application.Run((Form) view);
         }
