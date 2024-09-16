@@ -77,23 +77,54 @@ namespace CRUDWinFormsMVP.Presenters
                 : _repository.GetByValue(_view.SearchValue);
             _petsBindingSource.DataSource = _petList;
         }
+        private void AddNewPet(object sender, EventArgs e) => _view.IsEdit = false;
+        private void LoadSelectedPetToEdit(object sender, EventArgs e)
+        {
+            /* Cuando el evento editar se ejecute cargaremos los datos de la
+            ** mascota seleccionada en los cuadros de texto del formulario
+            ** para poder editarlo, para ello debemos obtener el modelo
+            ** mascota entonces accedemos a la fuente vinculante de la lista
+            ** de mascotas y obtenemos el objeto de la fila seleccionada
+            ** actualmente, esta propiedad obtiene el elemento actual de la
+            ** lista subyacente
+            */
+            var pet = (PetModel)_petsBindingSource.Current;
+            _view.PetId = pet.Id.ToString();
+            _view.PetName = pet.Name;
+            _view.PetType = pet.Type;
+            _view.PetColour = pet.Colour;
+            _view.IsEdit = true;
+        }
         private void CancelAction(object sender, EventArgs e)
         {
             throw new NotImplementedException();
         }
         private void SavePet(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+           /* El valor del estado editar de la vista cambia de acuerdo
+           ** a la acción del usuario ya sea que los datos se agreguen
+           ** o se editen y el evento guardar se ocupa del trabajo final
+           */
+            var model = new PetModel();
+            model.Id = Convert.ToInt32(_view.PetId);
+            model.Name = _view.PetName;
+            model.Type = _view.PetType;
+            model.Colour = _view.PetColour;
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                /* Si se produce algún error le indicamos a la vista que
+                ** la operación bo tuvo éxito y también establecemos  el
+                ** mensaje de error
+                */
+                _view.IsSuccessful = false;
+                _view.Message = ex.Message;
+            }
         }
         private void DeleteSelectedPet(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-        private void LoadSelectedPetToEdit(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-        private void AddNewPet(object sender, EventArgs e)
         {
             throw new NotImplementedException();
         }

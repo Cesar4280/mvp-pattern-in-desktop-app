@@ -28,8 +28,6 @@ namespace CRUDWinFormsMVP
             */
             string sqlConnectionString = ConfigurationManager.ConnectionStrings["sqlConnection"].ConnectionString;
 
-            // "Host=localhost;Port=5432;Username=soporte;Password=soporte;Database=VeterinaryDb"
-
             IMainView view = new MainView();
             
             // Instanciamos el presentador y le inyectamos los objetos vista y repositorio

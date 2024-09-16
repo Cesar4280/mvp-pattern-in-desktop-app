@@ -16,10 +16,12 @@ namespace CRUDWinFormsMVP.Views
             InitializeComponent();
             AssociateAndRaiseViewEvents();
             tabControl1.TabPages.Remove(tabPagePetDetail);
+            btnClose.Click += delegate { this.Close(); };
         }
 
         private void AssociateAndRaiseViewEvents()
-        { 
+        {
+            // Search
             /* Nos suscribimos al evento Click del botón de busqueda
             ** y generamos el evento buscar, podemos hacerlo mediante
             ** un metodo de controlador de eventos o podemos hacerlo
@@ -52,7 +54,56 @@ namespace CRUDWinFormsMVP.Views
                 **/
                 if (e.KeyCode == Keys.Enter)
                     SearchEvent?.Invoke(this, EventArgs.Empty);
-
+            };
+            // Add new
+            btnAddNew.Click += delegate 
+            {
+                AddNewEvent?.Invoke(this, EventArgs.Empty);
+                tabControl1.TabPages.Remove(tabPagePetList);
+                tabControl1.TabPages.Add(tabPagePetDetail);
+                tabPagePetDetail.Text = "Add new Pet";
+            };
+            // Edit
+            btnEdit.Click += delegate
+            {
+                EditEvent?.Invoke(this, EventArgs.Empty);
+                tabControl1.TabPages.Remove(tabPagePetList);
+                tabControl1.TabPages.Add(tabPagePetDetail);
+                tabPagePetDetail.Text = "Edit Pet";
+            };
+            // Save changes
+            btnSave.Click += delegate
+            {
+                SaveEvent?.Invoke(this, EventArgs.Empty);
+                if (_isSuccessful)
+                {
+                    tabControl1.TabPages.Remove(tabPagePetDetail);
+                    tabControl1.TabPages.Add(tabPagePetList);
+                }
+                MessageBox.Show(_message);
+            };
+            // Cancel
+            btnCancel.Click += delegate
+            {
+                CancelEvent?.Invoke(this, EventArgs.Empty);
+                tabControl1.TabPages.Remove(tabPagePetDetail);
+                tabControl1.TabPages.Add(tabPagePetList);
+            };
+            // Delete
+            btnDelete.Click += delegate
+            {
+                var result = MessageBox.Show
+                (
+                    "Are you sure want to delete the selected pet?",
+                    "Warning",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning
+                );
+                if (result == DialogResult.Yes)
+                {
+                    DeleteEvent?.Invoke(this, EventArgs.Empty);
+                    MessageBox.Show(_message);
+                }
             };
         }
 
@@ -103,5 +154,37 @@ namespace CRUDWinFormsMVP.Views
 
         // Methods
         public void SePetListBindingSource(BindingSource petList) => dataGridView.DataSource = petList;
+
+        // Singleton pattern (Open a single form instance)
+        private static PetView _instance;
+
+        public static PetView GetInstance(Form parentContainer)
+        {
+            // Evaluamos si la instancia del formulario no existe o esta desechado
+            if (_instance == null || _instance.IsDisposed)
+            {
+                /* Ahora, cuando se crea una instancia del formulario secundario
+                ** establecemos el parámetro del contenedor principal en la
+                ** propiedad Mdi padre del formulario secundario. Quitamos el
+                ** estilo de borde y establecemos la propiedad acople en llenar
+                */
+                _instance = new PetView()
+                {
+                    MdiParent = parentContainer,
+                    FormBorderStyle = FormBorderStyle.None,
+                    Dock = DockStyle.Fill
+                };
+            }
+            else
+            {
+                // si ya existe entonces traemos el formulario al frente para mostrarlo
+                // otra condición para restaurar el formulario en caso de estar minimizado
+                if (_instance.WindowState == FormWindowState.Minimized)
+                    _instance.WindowState = FormWindowState.Normal;
+                _instance.BringToFront();
+            }
+            // finalmente retornamos la instancia del formulario
+            return _instance;
+        }
     }
 }
