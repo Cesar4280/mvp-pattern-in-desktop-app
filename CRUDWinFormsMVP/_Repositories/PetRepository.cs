@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CRUDWinFormsMVP.Models;
 using NpgsqlTypes;
 using System;
+using System.Linq;
 
 namespace CRUDWinFormsMVP._Repositories
 {
@@ -127,12 +128,38 @@ namespace CRUDWinFormsMVP._Repositories
 
         public void Add(PetModel petModel)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(_connectionString))
+            using (var command = connection.CreateCommand())
+            {
+                connection.Open();
+                command.CommandText = "INSERT INTO Pet(Pet_Name, Pet_Type, Pet_Colour) VALUES (@name, @type, @colour)";
+                command.Parameters.AddWithValue("@name", NpgsqlDbType.Varchar, petModel.Name);
+                command.Parameters.AddWithValue("@type", NpgsqlDbType.Integer, petModel.Type);
+                command.Parameters.AddWithValue("@colour", NpgsqlDbType.Varchar, petModel.Colour);
+                command.ExecuteNonQuery();
+            }
         }
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            IEnumerable<PetModel> result = GetByValue(id.ToString());
+
+            if (result.Count() == 0) throw new Exception("Pet not founded");
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            using (var command = connection.CreateCommand())
+            {
+                connection.Open();
+                command.CommandText = "DELETE FROM Pet WHERE Pet_Id=@id";
+                command.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
+
+                var affectedRows = command.ExecuteNonQuery();
+
+                if (affectedRows > 0)
+                {
+
+                }
+            }
         }
 
         public void Edit(PetModel petModel)

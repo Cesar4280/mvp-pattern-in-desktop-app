@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using CRUDWinFormsMVP.Models;
 using CRUDWinFormsMVP.Views;
@@ -69,6 +70,7 @@ namespace CRUDWinFormsMVP.Presenters
             */
             _petsBindingSource.DataSource = _petList; // Set data source.
         }
+        
         private void SearchPet(object sender, EventArgs e)
         {
             bool emptyValue = string.IsNullOrWhiteSpace(_view.SearchValue);
@@ -77,7 +79,9 @@ namespace CRUDWinFormsMVP.Presenters
                 : _repository.GetByValue(_view.SearchValue);
             _petsBindingSource.DataSource = _petList;
         }
+        
         private void AddNewPet(object sender, EventArgs e) => _view.IsEdit = false;
+        
         private void LoadSelectedPetToEdit(object sender, EventArgs e)
         {
             /* Cuando el evento editar se ejecute cargaremos los datos de la
@@ -88,31 +92,52 @@ namespace CRUDWinFormsMVP.Presenters
             ** actualmente, esta propiedad obtiene el elemento actual de la
             ** lista subyacente
             */
-            var pet = (PetModel)_petsBindingSource.Current;
+            var pet = (PetModel) _petsBindingSource.Current;
             _view.PetId = pet.Id.ToString();
             _view.PetName = pet.Name;
             _view.PetType = pet.Type;
             _view.PetColour = pet.Colour;
             _view.IsEdit = true;
         }
-        private void CancelAction(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+        
         private void SavePet(object sender, EventArgs e)
         {
-           /* El valor del estado editar de la vista cambia de acuerdo
-           ** a la acción del usuario ya sea que los datos se agreguen
-           ** o se editen y el evento guardar se ocupa del trabajo final
-           */
-            var model = new PetModel();
-            model.Id = Convert.ToInt32(_view.PetId);
-            model.Name = _view.PetName;
-            model.Type = _view.PetType;
-            model.Colour = _view.PetColour;
+            /* El valor del estado editar de la vista cambia de acuerdo
+            ** a la acción del usuario ya sea que los datos se agreguen
+            ** o se editen y el evento guardar se ocupa del trabajo final
+            */
+            var model = new PetModel
+            {
+                Id = Convert.ToInt32(_view.PetId),
+                Name = _view.PetName,
+                Type = _view.PetType,
+                Colour = _view.PetColour
+            };
             try
             {
+                /* Bueno antes de agregar o editar el modelo debemos
+                ** validar que los datos de la vista sean correctos
+                ** ya que en el modelo hicimos algunas validaciones
+                ** por ejemplo no permitir datos vacios y la
+                ** longitud mínima y máxima sin embargo esos atributos
+                ** validadores necesitan ser procesados para llevar
+                ** a cabo las validaciones correspondientes
+                */
+                new Common.ModelDataValidation().Validate(model);
 
+                if (_view.IsEdit) // Edit model
+                {
+                    _repository.Edit(model);
+                    _view.Message = "Pet edited successfully";
+                }
+                else // Add new model
+                {
+                    _repository.Add(model);
+                    _view.Message = "Pet added successfully";
+                }
+                _view.IsSuccessful = true;
+                LoadAllPetList();
+                CleanViewFields();
             }
             catch (Exception ex)
             {
@@ -124,9 +149,31 @@ namespace CRUDWinFormsMVP.Presenters
                 _view.Message = ex.Message;
             }
         }
+        
+        private void CleanViewFields()
+        {
+            _view.PetId = "0";
+            _view.PetName = string.Empty;
+            _view.PetType = string.Empty;
+            _view.PetColour = string.Empty;
+        }
+
+        private void CancelAction(object sender, EventArgs e) => CleanViewFields();
+
         private void DeleteSelectedPet(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var pet = (PetModel) _petsBindingSource.Current;
+                _repository.Delete(pet.Id);
+                _view.Message = "Pet deleted successfully";
+                LoadAllPetList();
+            }
+            catch (Exception)
+            {
+                _view.IsSuccessful = false;
+                _view.Message = "An error ocurred, could not delete pet";
+            }
         }
     }
 }

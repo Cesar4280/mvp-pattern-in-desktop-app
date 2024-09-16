@@ -99,6 +99,7 @@
   <ItemGroup>
     <Compile Include="Models\IPetRepository.cs" />
     <Compile Include="Models\PetModel.cs" />
+    <Compile Include="Presenters\Common\ModelDataValidation.cs" />
     <Compile Include="Presenters\MainPresenter.cs" />
     <Compile Include="Presenters\PetPresenter.cs" />
     <Compile Include="Program.cs" />
@@ -148,8 +149,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Presenters\Common\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
