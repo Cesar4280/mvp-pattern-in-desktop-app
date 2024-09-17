@@ -1,9 +1,7 @@
 ﻿using Npgsql;
+using NpgsqlTypes;
 using System.Collections.Generic;
 using CRUDWinFormsMVP.Models;
-using NpgsqlTypes;
-using System;
-using System.Linq;
 
 namespace CRUDWinFormsMVP._Repositories
 {
