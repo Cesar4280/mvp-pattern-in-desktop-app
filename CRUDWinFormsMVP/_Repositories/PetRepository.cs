@@ -112,16 +112,15 @@ namespace CRUDWinFormsMVP._Repositories
                 command.Parameters.AddWithValue("@name", NpgsqlDbType.Varchar, value);
 
                 using (var reader = command.ExecuteReader())
-                    while (reader.Read())
-                    {
-                        petList.Add(new PetModel
-                        {
-                            Id = reader.GetInt32(0),
-                            Name = reader.GetString(1),
-                            Type = reader.GetString(2),
-                            Colour = reader.GetString(3)
-                        });
-                    }
+                while (reader.Read())
+                petList.Add(new PetModel
+                {
+                    Id = reader.GetInt32(0),
+                    Name = reader.GetString(1),
+                    Type = reader.GetString(2),
+                    Colour = reader.GetString(3)
+                });
+                
             }
             return petList;
         }
@@ -132,9 +131,18 @@ namespace CRUDWinFormsMVP._Repositories
             using (var command = connection.CreateCommand())
             {
                 connection.Open();
-                command.CommandText = "INSERT INTO Pet(Pet_Name, Pet_Type, Pet_Colour) VALUES (@name, @type, @colour)";
+                command.CommandText = @"INSERT INTO Pet(
+                                            Pet_Name,
+                                            Pet_Type,
+                                            Pet_Colour
+                                        )
+                                        VALUES (
+                                            @name,
+                                            @type,
+                                            @colour
+                                        )";
                 command.Parameters.AddWithValue("@name", NpgsqlDbType.Varchar, petModel.Name);
-                command.Parameters.AddWithValue("@type", NpgsqlDbType.Integer, petModel.Type);
+                command.Parameters.AddWithValue("@type", NpgsqlDbType.Varchar, petModel.Type);
                 command.Parameters.AddWithValue("@colour", NpgsqlDbType.Varchar, petModel.Colour);
                 command.ExecuteNonQuery();
             }
@@ -142,29 +150,33 @@ namespace CRUDWinFormsMVP._Repositories
 
         public void Delete(int id)
         {
-            IEnumerable<PetModel> result = GetByValue(id.ToString());
-
-            if (result.Count() == 0) throw new Exception("Pet not founded");
-
             using (var connection = new NpgsqlConnection(_connectionString))
             using (var command = connection.CreateCommand())
             {
                 connection.Open();
                 command.CommandText = "DELETE FROM Pet WHERE Pet_Id=@id";
                 command.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
-
-                var affectedRows = command.ExecuteNonQuery();
-
-                if (affectedRows > 0)
-                {
-
-                }
+                command.ExecuteNonQuery();
             }
         }
 
         public void Edit(PetModel petModel)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(_connectionString))
+            using (var command = connection.CreateCommand())
+            {
+                connection.Open();
+                command.CommandText = @"UPDATE Pet
+                                        SET Pet_Name=@name,
+                                            Pet_Type=@type,
+                                            Pet_Colour=@colour
+                                        WHERE Pet_Id=@id";
+                command.Parameters.AddWithValue("@name", NpgsqlDbType.Varchar, petModel.Name);
+                command.Parameters.AddWithValue("@type", NpgsqlDbType.Varchar, petModel.Type);
+                command.Parameters.AddWithValue("@colour", NpgsqlDbType.Varchar, petModel.Colour);
+                command.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, petModel.Id);
+                command.ExecuteNonQuery();
+            }
         }
     }
 }
