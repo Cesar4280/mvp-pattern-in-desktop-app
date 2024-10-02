@@ -105,9 +105,10 @@ namespace CRUDWinFormsMVP.Presenters
             ** a la acción del usuario ya sea que los datos se agreguen
             ** o se editen y el evento guardar se ocupa del trabajo final
             */
+            int length = _view.PetId.Length;
             var model = new PetModel
             {
-                Id = Convert.ToInt32(_view.PetId),
+                Id = length == 0 ? length : Convert.ToInt32(_view.PetId),
                 Name = _view.PetName,
                 Type = _view.PetType,
                 Colour = _view.PetColour
