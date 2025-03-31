@@ -142,7 +142,7 @@ namespace CRUDWinFormsMVP.Presenters
             catch (Exception ex)
             {
                 /* Si se produce algún error le indicamos a la vista que
-                ** la operación bo tuvo éxito y también establecemos  el
+                ** la operación no tuvo éxito y también establecemos el
                 ** mensaje de error
                 */
                 _view.IsSuccessful = false;
